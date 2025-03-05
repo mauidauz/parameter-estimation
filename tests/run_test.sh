@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e  # Stop script if any command fails
-# Acknowledging reference to and help from some website tools for fixing codes and errors
+# Acknowledging reference to and help from ChatGPT for fixing codes and errors
 
 echo "Running tests for SimplifiedThreePL..."
 # Run all unit tests in the 'tests' directory
