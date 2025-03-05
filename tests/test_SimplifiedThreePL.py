@@ -1,8 +1,8 @@
-# Acknowledging reference to and help from some website tools for fixing codes and errors
+# Acknowledging reference to and help from ChatGPT for fixing codes and errors
 
 import sys
 import os
-import numpy as np 
+import numpy as np
 
 # Adding the 'src' directory to sys.path to make sure it's in the search path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
