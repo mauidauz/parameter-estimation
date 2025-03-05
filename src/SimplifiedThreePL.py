@@ -1,3 +1,5 @@
+# Acknowledging referance to and help from some website tools for fixing codes and errors
+
 import numpy as np
 from scipy.optimize import minimize
 
