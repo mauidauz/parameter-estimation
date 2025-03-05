@@ -6,8 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 
 import unittest
 import numpy as np
-from src.SimplifiedThreePL import SimplifiedThreePL
-from src.Experiment import Experiment  # Assuming you have an Experiment class
+from SimplifiedThreePL import SimplifiedThreePL
+from Experiment import Experiment  # Assuming you have an Experiment class
 
 class TestSimplifiedThreePL(unittest.TestCase):
     
