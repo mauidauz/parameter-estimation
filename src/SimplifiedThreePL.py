@@ -1,4 +1,4 @@
-# Acknowledging referance to and help from some website tools for fixing codes and errors
+# Acknowledging reference to and help from some website tools for fixing codes and errors
 
 import numpy as np
 from scipy.optimize import minimize
@@ -15,9 +15,9 @@ class SimplifiedThreePL:
         n_correct = 0
         n_incorrect = 0
         for sdt in self.experiment.conditions:
-            n_total += sdt.n_total_responses() # Use SignalDetection's method to get total responses
-            n_correct += sdt.n_correct_responses() # Correct responses from SignalDetection
-            n_incorrect += sdt.n_incorrect_responses() # Incorrect responses from SignalDetection
+            n_total += sdt.n_total_responses()  # Use SignalDetection's method to get total responses
+            n_correct += sdt.n_correct_responses()  # Correct responses from SignalDetection
+            n_incorrect += sdt.n_incorrect_responses()  # Incorrect responses from SignalDetection
         
         n_conditions = len(self.experiment.conditions)
 
@@ -39,16 +39,21 @@ class SimplifiedThreePL:
         a, theta, difficulties, q = parameters
         c = 1 / (1 + np.exp(-q))  # Inverse logit to get c
         probabilities = []
-        
-        for bi in difficulties:
-            prob = c + (1 - c) / (1 + np.exp(-a * (theta - bi)))
+
+        # Ensure that difficulties is a list or an iterable
+        if isinstance(difficulties, list):
+            for bi in difficulties:
+                prob = c + (1 - c) / (1 + np.exp(-a * (theta - bi)))  # Apply the subtraction to each difficulty
+                probabilities.append(prob)
+        else:
+            # If difficulties isn't a list, handle it as a scalar (though it should be a list in practice)
+            prob = c + (1 - c) / (1 + np.exp(-a * (theta - difficulties)))
             probabilities.append(prob)
-        
+
         return np.array(probabilities)
 
     def negative_log_likelihood(self, parameters):
-        """
-        Calculate the negative log-likelihood for the current parameters.
+        """Calculate the negative log-likelihood for the current parameters.
         a: discrimination
         theta: person ability
         difficulties: list of item difficulties
@@ -57,18 +62,19 @@ class SimplifiedThreePL:
         a, theta, *difficulties, q = parameters
         c = 1 / (1 + np.exp(-q))  # Inverse logit to get c
         probabilities = self.predict([a, theta, difficulties, q])
-        
-        n_correct = sum(condition.n_hits for condition in self.experiment.conditions)  # Correct responses (assuming 'n_hits' exists)
-        n_incorrect = self.experiment.n_incorrect_responses()
-        
+
+        # Summing the correct and incorrect responses across all conditions
+        n_correct = sum(condition.n_correct_responses() for condition in self.experiment.conditions)
+        n_incorrect = sum(condition.n_incorrect_responses() for condition in self.experiment.conditions)
+
         log_likelihood = 0
         for i in range(len(difficulties)):
             prob_correct = probabilities[i]
             prob_incorrect = 1 - prob_correct
-            
+
             # Update log-likelihood calculation to match your experiment structure
-            log_likelihood += (n_correct[i] * np.log(prob_correct)) + (n_incorrect[i] * np.log(prob_incorrect))
-        
+            log_likelihood += (n_correct * np.log(prob_correct)) + (n_incorrect * np.log(prob_incorrect))
+
         return -log_likelihood
 
     def fit(self):
