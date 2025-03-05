@@ -11,11 +11,15 @@ class SimplifiedThreePL:
 
     def summary(self):
         """Summarize the data in the experiment."""
-        # Ensure n_correct and n_incorrect are arrays or lists
-        n_total = sum(self.experiment.n_correct + self.experiment.n_incorrect)
-        n_correct = sum(self.experiment.n_correct)
-        n_incorrect = sum(self.experiment.n_incorrect)
-        n_conditions = len(self.experiment.n_correct)
+        n_total = 0
+        n_correct = 0
+        n_incorrect = 0
+        for sdt in self.experiment.conditions:
+            n_total += sdt.n_total_responses() # Use SignalDetection's method to get total responses
+            n_correct += sdt.n_correct_responses() # Correct responses from SignalDetection
+            n_incorrect += sdt.n_incorrect_responses() # Incorrect responses from SignalDetection
+        
+        n_conditions = len(self.experiment.conditions)
 
         return {
             'n_total': n_total,
@@ -50,12 +54,12 @@ class SimplifiedThreePL:
         difficulties: list of item difficulties
         q: base rate adjustment
         """
-        a, theta, difficulties, q = parameters
+        a, theta, *difficulties, q = parameters
         c = 1 / (1 + np.exp(-q))  # Inverse logit to get c
-        probabilities = self.predict(parameters)
+        probabilities = self.predict([a, theta, difficulties, q])
         
-        n_correct = self.experiment.n_correct
-        n_incorrect = self.experiment.n_incorrect
+        n_correct = sum(condition.n_correct for condition in self.experiment.conditions)
+        n_incorrect = self.experiment.n_incorrect_responses()
         
         log_likelihood = 0
         for i in range(len(difficulties)):
@@ -69,13 +73,13 @@ class SimplifiedThreePL:
 
     def fit(self):
         """Fit the model using the maximum likelihood estimation."""
-        # Initial guess for the parameters: [a, theta, difficulties, q]
-        initial_guess = [1.0, 0.0, [2, 1, 0, -1, -2], 0.0]  # Example values for a, theta, difficulties, q
+        # Flatten difficulties and ensure the rest of the parameters are scalar
+        initial_guess = [1.0, 0.0] + [2, 1, 0, -1, -2] + [0.0]  # [a, theta, difficulties (flattened), q]
         result = minimize(self.negative_log_likelihood, initial_guess, method='BFGS')
 
         if result.success:
-            # Accessing the optimized parameters from the result
-            a, theta, difficulties, q = result.x[0], result.x[1], result.x[2], result.x[3]
+            # Unpack the optimized parameters correctly
+            a, theta, *difficulties, q = result.x  # Unpack all parameters
             self._discrimination = a
             self._logit_base_rate = q
             self._base_rate = 1 / (1 + np.exp(-q))  # Convert logit to base rate

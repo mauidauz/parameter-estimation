@@ -14,7 +14,7 @@ class TestSimplifiedThreePL(unittest.TestCase):
     def setUp(self):
         """Set up a mock Experiment object."""
         self.experiment = Experiment()
-        
+
         # Add some conditions to the experiment
         conditions = [
             (10, 5, 3, 8),  # Example hits, misses, falseAlarms, correctRejections
@@ -42,8 +42,8 @@ class TestSimplifiedThreePL(unittest.TestCase):
     def test_predict(self):
         """Test that the predict method outputs probabilities between 0 and 1."""
         self.model.fit()  # Fit the model before predicting
-        prob = self.model.predict([0.5])  # Example parameter
-        self.assertTrue(0 <= prob <= 1)
+        prob = self.model.predict([1.0, 0.0, [2, 1, 0, -1, -2], 0.0])  # Example parameter, using the correct structure
+        self.assertTrue(0 <= prob.all() <= 1)
 
     def test_predict_base_rate_effect(self):
         """Test that higher base rates increase predicted probabilities."""
