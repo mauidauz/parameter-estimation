@@ -1,5 +1,9 @@
 # Acknowledging referance to and help from some website tools for fixing codes and errors
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 import unittest
 import numpy as np
 from src.SimplifiedThreePL import SimplifiedThreePL
