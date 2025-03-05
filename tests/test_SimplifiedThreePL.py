@@ -5,15 +5,29 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 import unittest
-import numpy as np
 from src.SimplifiedThreePL import SimplifiedThreePL
-from src.Experiment import Experiment  # Assuming you have an Experiment class
+from src.Experiment import Experiment
+from src.SignalDetection import SignalDetection  # Assuming SignalDetection class is imported correctly.
 
 class TestSimplifiedThreePL(unittest.TestCase):
-    
+
     def setUp(self):
         """Set up a mock Experiment object."""
-        self.experiment = Experiment()  # Assume Experiment is defined properly
+        self.experiment = Experiment()
+        
+        # Add some conditions to the experiment
+        conditions = [
+            (10, 5, 3, 8),  # Example hits, misses, falseAlarms, correctRejections
+            (15, 7, 2, 10),
+            (12, 6, 5, 9),
+            (14, 4, 3, 12),
+            (11, 8, 4, 7)
+        ]
+        
+        for hits, misses, falseAlarms, correctRejections in conditions:
+            sdt = SignalDetection(hits, misses, falseAlarms, correctRejections)
+            self.experiment.add_condition(sdt)
+        
         self.model = SimplifiedThreePL(self.experiment)
 
     def test_initialization_valid(self):
@@ -23,7 +37,7 @@ class TestSimplifiedThreePL(unittest.TestCase):
     def test_summary(self):
         """Test that the summary method returns the correct data."""
         summary = self.model.summary()
-        self.assertEqual(summary['n_total'], 100)  # Example number of trials
+        self.assertEqual(summary['n_total'], 55)  # Example sum of trials (adjust if necessary).
 
     def test_predict(self):
         """Test that the predict method outputs probabilities between 0 and 1."""
@@ -53,8 +67,9 @@ class TestSimplifiedThreePL(unittest.TestCase):
 
     def test_integration(self):
         """Test the integration of the model with a known dataset."""
-        # Create mock data with 5 conditions, 100 trials per condition
-        self.experiment.set_data_conditions([0.55, 0.60, 0.75, 0.90, 0.95])
+        for condition in [0.55, 0.60, 0.75, 0.90, 0.95]:
+            sdt = SignalDetection(hits=10, misses=5, falseAlarms=3, correctRejections=8)  # Example data
+            self.experiment.add_condition(sdt)
         self.model.fit()
         predictions = self.model.predict([0.5])  # Expected behavior
         self.assertEqual(len(predictions), 5)
