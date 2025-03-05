@@ -2,14 +2,14 @@
 
 import sys
 import os
-import numpy as np  # Ensure numpy is imported to fix NameError
+import numpy as np 
 
-# Add the 'src' directory to sys.path to make sure it's in the search path for imports
+# Adding the 'src' directory to sys.path to make sure it's in the search path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-# Now import your modules
-from SimplifiedThreePL import SimplifiedThreePL
-from Experiment import Experiment
+# Importing modules
+from SimplifiedThreePL import SimplifiedThreePL #src. ? but src. isnt working 
+from Experiment import Experiment #src. ?
 from SignalDetection import SignalDetection
 import unittest
 
@@ -21,7 +21,7 @@ class TestSimplifiedThreePL(unittest.TestCase):
 
         # Add some conditions to the experiment
         conditions = [
-            (10, 5, 3, 8),  # hits, misses, false alarms, correct rejections
+            (10, 5, 3, 8),  # order: hits, misses, false alarms, correct rejections
             (10, 7, 2, 8),
             (8, 5, 4, 7),
             (10, 4, 3, 8),
