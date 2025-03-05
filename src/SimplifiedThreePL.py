@@ -26,7 +26,7 @@ class SimplifiedThreePL:
         probabilities = []
         
         for difficulty in self.experiment.difficulties:
-            probability = c + (1 - c) / (1 + math.exp(-a * (0 - difficulty)))
+            probability = c + (1 - c) / (1 + math.exp(-a * difficulty))  # No more "self.experiment.ability"
             probabilities.append(probability)
         
         return probabilities
@@ -48,29 +48,45 @@ class SimplifiedThreePL:
 
         return -log_likelihood  # Negative because we minimize
 
-    def fit(self, learning_rate=0.01, iterations=1000):
+    def fit(self, learning_rate=0.01, max_iterations=1000, tolerance=1e-6):
         """Performs gradient descent to optimize parameters."""
         a = 1.0  # Initial guess for discrimination parameter
         logit_c = 0.0  # Initial guess for base rate (in logit form)
         
-        for _ in range(iterations):
-            # Compute gradients
+        prev_loss = float("inf")  # Track previous loss for stopping condition
+        
+        for _ in range(max_iterations):
             p_correct = self.predict([a, logit_c])
-            dL_da = sum(
-                (self.experiment.correct[i] - self.experiment.incorrect[i]) *
-                (-self.experiment.difficulties[i] * p_correct[i] * (1 - p_correct[i]))
-                for i in range(len(self.experiment.correct))
-            )
-            dL_dlogit_c = sum(
-                (self.experiment.correct[i] - self.experiment.incorrect[i]) *
-                (p_correct[i] * (1 - p_correct[i]))
-                for i in range(len(self.experiment.correct))
-            )
+            
+            # Compute negative log-likelihood for convergence check
+            current_loss = self.negative_log_likelihood([a, logit_c])
+            
+            # Initialize gradients
+            dL_da = 0.0
+            dL_dlogit_c = 0.0
 
-            # Update parameters
+            for i in range(len(self.experiment.correct)):
+                correct = self.experiment.correct[i]
+                incorrect = self.experiment.incorrect[i]
+                difficulty = self.experiment.difficulties[i]
+
+                prob = p_correct[i]  # Probability of correct response
+                if 0 < prob < 1:  # Avoid log(0) errors
+                    # Compute gradients using proper partial derivatives
+                    dL_da += -(correct - incorrect) * difficulty * prob * (1 - prob)
+                    dL_dlogit_c += -(correct - incorrect) * prob * (1 - prob)
+
+            # Update parameters with gradient descent
             a -= learning_rate * dL_da
             logit_c -= learning_rate * dL_dlogit_c
 
+            # Check for convergence
+            if abs(prev_loss - current_loss) < tolerance:
+                break
+            
+            prev_loss = current_loss  # Update loss for next iteration
+
+        # Store learned parameters
         self._discrimination = a
         self._logit_base_rate = logit_c
         self._is_fitted = True

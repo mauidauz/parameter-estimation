@@ -1,5 +1,5 @@
 class Experiment:
-    def __init__(self, correct, incorrect, difficulties=None):
+    def __init__(self, correct, incorrect, difficulties=None, ability=0.0):
         """Initialize an Experiment with correct/incorrect responses for each condition."""
         self.correct = list(correct)  # Convert input to standard Python lists
         self.incorrect = list(incorrect)
@@ -14,6 +14,9 @@ class Experiment:
         if len(self.correct) != len(self.incorrect) or len(self.correct) != len(self.difficulties):
             raise ValueError("All input lists must have the same length.")
 
+        # Set ability (default to 0.0 if not provided)
+        self.ability = ability
+
     def total_responses(self):
         """Returns the total number of responses."""
         return sum(self.correct) + sum(self.incorrect)
@@ -26,5 +29,5 @@ class Experiment:
             "n_incorrect": sum(self.incorrect),
             "n_conditions": len(self.correct)
         }
-
+    
 # Developed with help from AI
