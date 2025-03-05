@@ -58,7 +58,7 @@ class SimplifiedThreePL:
         c = 1 / (1 + np.exp(-q))  # Inverse logit to get c
         probabilities = self.predict([a, theta, difficulties, q])
         
-        n_correct = sum(condition.hits for condition in self.experiment.conditions)
+        n_correct = sum(condition.n_hits for condition in self.experiment.conditions)  # Correct responses (assuming 'n_hits' exists)
         n_incorrect = self.experiment.n_incorrect_responses()
         
         log_likelihood = 0

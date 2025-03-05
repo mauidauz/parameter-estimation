@@ -1,5 +1,15 @@
-from typing import List, Tuple, Optional
+#Provided in class repo
+
+import sys
+import os
+
+# Add the parent directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from SignalDetection import SignalDetection
+
+from typing import List, Tuple, Optional
+from src.SignalDetection import SignalDetection
 
 class Experiment:
     def __init__(self):

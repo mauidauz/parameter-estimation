@@ -2,12 +2,14 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+# Add the 'src' directory to sys.path to make sure it's in the search path for imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
+# Now import your modules
+from SimplifiedThreePL import SimplifiedThreePL
+from Experiment import Experiment
+from SignalDetection import SignalDetection
 import unittest
-from src.SimplifiedThreePL import SimplifiedThreePL
-from src.Experiment import Experiment
-from src.SignalDetection import SignalDetection  # Assuming SignalDetection class is imported correctly.
 
 class TestSimplifiedThreePL(unittest.TestCase):
 
@@ -17,11 +19,11 @@ class TestSimplifiedThreePL(unittest.TestCase):
 
         # Add some conditions to the experiment
         conditions = [
-            (10, 5, 3, 8),  # Example hits, misses, falseAlarms, correctRejections
-            (15, 7, 2, 10),
-            (12, 6, 5, 9),
-            (14, 4, 3, 12),
-            (11, 8, 4, 7)
+            (10, 5, 3, 8),  # hits, misses, false alarms, correct rejections
+            (10, 7, 2, 8),
+            (8, 5, 4, 7),
+            (10, 4, 3, 8),
+            (7, 3, 2, 5)
         ]
         
         for hits, misses, falseAlarms, correctRejections in conditions:
@@ -42,8 +44,9 @@ class TestSimplifiedThreePL(unittest.TestCase):
     def test_predict(self):
         """Test that the predict method outputs probabilities between 0 and 1."""
         self.model.fit()  # Fit the model before predicting
-        prob = self.model.predict([1.0, 0.0, [2, 1, 0, -1, -2], 0.0])  # Example parameter, using the correct structure
-        self.assertTrue(0 <= prob.all() <= 1)
+        parameters = [1.0, 0.5, [2, 1, 0, -1, -2], 0.0]
+        prob = self.model.predict(parameters)  
+        self.assertTrue(0 <= prob <= 1)
 
     def test_predict_base_rate_effect(self):
         """Test that higher base rates increase predicted probabilities."""
@@ -57,7 +60,9 @@ class TestSimplifiedThreePL(unittest.TestCase):
         """Test that the negative log-likelihood improves after fitting."""
         initial_ll = self.model.negative_log_likelihood([0.5])
         self.model.fit()
+        parameters = [1.0, 0.5, [2, 1, 0, -1, -2], 0.0]
         fitted_ll = self.model.negative_log_likelihood([0.5])
+        self.model.negative_log_likelihood(parameters)
         self.assertLess(fitted_ll, initial_ll)
 
     def test_get_parameters_before_fit(self):

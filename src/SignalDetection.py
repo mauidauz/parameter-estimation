@@ -1,3 +1,5 @@
+#Provided in class repo
+
 import scipy.stats as stats
 
 class SignalDetection:
