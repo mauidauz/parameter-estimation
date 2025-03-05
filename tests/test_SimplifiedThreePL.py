@@ -1,9 +1,13 @@
 import unittest
-#import numpy as np
+import sys
+import os
 
-import unittest
-from src.Experiment import Experiment
-from src.SimplifiedThreePL import SimplifiedThreePL
+# Add the parent directory to sys.path so Python finds src/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+
+# Import modules correctly
+from Experiment import Experiment
+from SimplifiedThreePL import SimplifiedThreePL
 
 class TestSimplifiedThreePL(unittest.TestCase):
     def setUp(self):
@@ -20,7 +24,7 @@ class TestSimplifiedThreePL(unittest.TestCase):
     def test_predict_output_range(self):
         """Test that predict() outputs probabilities between 0 and 1."""
         predictions = self.model.predict([1.0, 0.0])
-        self.assertTrue(np.all((0 <= predictions) & (predictions <= 1)))
+        self.assertTrue(all(0 <= p <= 1 for p in predictions))  # Pure Python check
 
     def test_fit_model(self):
         """Test that fit() successfully updates parameters."""
